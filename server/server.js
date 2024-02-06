@@ -57,3 +57,39 @@ app.post('/store-data', async (req, res) => {
 app.listen(PORT,() => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.post('/scan-data', async (req, res) => {
+  try {
+    const { code, bhawan } = req.body;
+    let collection;
+    switch (bhawan){
+      case 'rajendra':
+        collection=RajendraBhawan;
+        break;
+      case 'rajiv':
+          collection =RajivBhawan;
+          break;
+      case 'KB':
+            collection =KBBhawan;
+            break;
+      case 'govind':
+              collection =GovindBhawan;
+              break;
+      case 'ganga':
+        collection = GangaBhawan;
+        break;
+      case 'jawahar':
+        collection = JawaharBhawan;
+        break;
+      default: 
+        return res.status(400).json({ error: 'Invalid Bhawan' });
+    }
+    const data = await collection.findOne({ userId: code });
+    if (!data) {
+      return res.status(404).json({ error: 'Data not found for this QR code' });
+    }
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
